@@ -7,7 +7,7 @@ from __future__ import annotations
 import pandas as pd
 import streamlit as st
 
-from src import charts, metrics, pdf
+from src import charts, metrics
 from src.config import PALETA, cargar_ajustes
 from src.data import leer
 
@@ -162,44 +162,10 @@ if k.minutos_perdidos:
 # --------------------------------------------------------------------------- tendencia
 tp = metrics.tendencia_periodo(f, AJ)
 if len(tp) > 1:
-    fig_tend, sub_tend = charts.tendencia(tp, AJ, "Periodo académico"), \
-        "Comparación entre periodos: responde si el problema se corrige o se arrastra."
-else:
-    ts = metrics.tendencia_semana(f, AJ)
-    fig_tend, sub_tend = charts.tendencia(ts, AJ, "Semana del periodo"), \
-        "Evolución dentro del periodo, semanas 1 a 16."
-st.markdown("#### ¿Vamos mejorando?")
-st.caption(sub_tend)
-st.plotly_chart(fig_tend, use_container_width=True, config={"displayModeBar": False})
-
-# --------------------------------------------------------------------------- horarios
-st.markdown("#### Parrilla de horarios: puntualidad por día y hora de inicio")
-st.caption("La vista de planeación: si el problema se concentra en bloques, es de horario y "
-           "logística; si está repartido, es de personas. Celdas con menos de 30 sesiones van vacías.")
-mapa = metrics.mapa_dia_hora(f, AJ)
-fig_heat = None
-if not mapa.empty:
-    fig_heat = charts.heatmap_dia_hora(mapa, AJ)
-    st.plotly_chart(fig_heat, use_container_width=True, config={"displayModeBar": False})
-else:
-    st.info("El archivo no trae día u hora de inicio, así que esta vista no aplica.")
-
-# --------------------------------------------------------------------------- modalidad y espacios
-ct1, ct2 = st.columns(2)
-with ct1:
-    tcur = metrics.por_dimension(f, "tipo_curso", AJ, minimo=30)
-    if len(tcur) > 1:
-        st.markdown("#### Por tipo de clase")
-        st.caption("Presencial contra en línea: si difieren, el proceso de registro no es comparable.")
-        st.plotly_chart(charts.barras_unidad(tcur, AJ), use_container_width=True,
-                        config={"displayModeBar": False})
-with ct2:
-    ted = metrics.por_dimension(f, "edificio", AJ, minimo=200)
-    if len(ted) > 1:
-        st.markdown("#### Por edificio")
-        st.caption("Traslados y acceso: un edificio sistemáticamente bajo apunta a logística, no a docentes.")
-        st.plotly_chart(charts.barras_unidad(ted, AJ), use_container_width=True,
-                        config={"displayModeBar": False})
+    st.markdown("#### ¿Vamos mejorando?")
+    st.caption("La única métrica que responde si el problema se corrige o se arrastra.")
+    st.plotly_chart(charts.tendencia(tp, AJ, "Periodo académico"), use_container_width=True,
+                    config={"displayModeBar": False})
 
 # --------------------------------------------------------------------------- unidades + prioridad
 izq, der = st.columns([1.25, 1])
@@ -300,33 +266,7 @@ for i, (titulo, detalle, accion) in enumerate(hallazgos):
             unsafe_allow_html=True,
         )
 
-# --------------------------------------------------------------------------- PDF
 st.divider()
-cpdf, cnota = st.columns([1, 3])
-with cpdf:
-    generar = st.button("📄 Preparar one-pager PDF", use_container_width=True)
-if generar:
-    with st.spinner("Armando el PDF…"):
-        figuras = {"tendencia": fig_tend, "_sub_tendencia": sub_tend}
-        if fig_heat is not None:
-            figuras["heatmap"] = fig_heat
-        tabla_u = metrics.por_dimension(f, dim, AJ)
-        figuras["unidades"] = charts.barras_unidad(tabla_u, AJ)
-        if not pr.empty:
-            figuras["prioridad"] = charts.matriz_prioridad(pr.head(10), AJ)
-        figuras["codigos"] = charts.barras_codigos(metrics.composicion_codigos(f, AJ))
-        contenido = pdf.generar_pdf(
-            AJ, k, f"{alcance} · {k.sesiones:,} sesiones", figuras, hallazgos, avisos
-        )
-    st.download_button(
-        "⬇️ Descargar one-pager (PDF, A4 horizontal)", contenido,
-        file_name=f"one_pager_puntualidad_{alcance.split(' ')[0].replace(' ', '_')}.pdf",
-        mime="application/pdf", type="primary",
-    )
-with cnota:
-    st.caption("El PDF replica esta vista con la selección actual de filtros: una hoja A4 "
-               "horizontal lista para imprimir o adjuntar en la carpeta de la junta.")
-
 st.caption(
     f"Fuente: registro diario · códigos {AJ.excluir} excluidos por indicación del área funcional · "
     f"% Puntualidad calculada sobre Asistencia Global · el indicador mide registro de check, "

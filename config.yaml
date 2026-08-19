@@ -4,8 +4,8 @@
 
 # Ruta al archivo de datos que se carga por defecto (relativa a la raiz del
 # proyecto). Puede ser .xlsx o .csv. Si no existe, la app pide subir el archivo.
-fuente: data/OT-22.xlsx
-hoja: Hoja1           # nombre de la hoja si es Excel; null = la primera
+fuente: data/registro_demo.csv
+hoja: null            # nombre de la hoja si es Excel; null = la primera
 
 # ---------------------------------------------------------------------------
 # Mapeo de columnas: "campo_interno: Nombre en tu archivo"
@@ -13,24 +13,17 @@ hoja: Hoja1           # nombre de la hoja si es Excel; null = la primera
 # nombres parecidos (ignora acentos, mayusculas y espacios).
 # ---------------------------------------------------------------------------
 columnas:
-  periodo: Periodo                  # numerico institucional (202311) o PR-26 / OT-25
-  fecha: Fechas
-  codigo: CALIF FINAL               # en el registro real el codigo vive aqui
-  profesor: Nombre
+  periodo: Periodo                  # PR-26, OT-25, ...
+  fecha: Fecha
+  codigo: Codigo                    # catalogo de abajo
+  profesor: Profesor
   escuela: Escuela
-  departamento: Desc_depto
-  vicerrectoria: Vicerrectoría
+  departamento: Departamento
+  vicerrectoria: Vicerrectoria
   crn: CRN
-  materia: Materia
-  tipo_curso: Tipo de curso
-  edificio: Edificio
-  salon: Salón
-  dia_semana: Día
-  semana: Semana
-  hora_programada: H_INI            # entero HHMM: 700 = 7:00
-  hora_fin: H_FIN
-  check_entrada: Check entrada      # hoy viene vacia; si algun dia se llena, activa minutos perdidos
-  check_salida: Check salida
+  hora_programada: HoraProgramada   # opcional, para minutos perdidos
+  check_entrada: CheckEntrada       # opcional
+  check_salida: CheckSalida         # opcional
 
 # ---------------------------------------------------------------------------
 # Catalogo de codigos de registro
