@@ -1,8 +1,0 @@
-__pycache__/
-*.pyc
-.venv/
-.DS_Store
-data/*.xlsx
-data/*.xlsm
-data/*.csv
-!data/registro_demo.csv
